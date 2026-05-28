@@ -38,9 +38,26 @@ $accessToken = $tokens->getAccessToken();
 //   Authorization: Bearer {$accessToken}
 ```
 
+### Runnable example
+
+A complete runnable example lives in [`index.php`](index.php):
+
+```bash
+composer install
+# Generate the service-account credentials JSON from the Blerify portal and
+# save it as config/credentials.json
+php index.php
+```
+
+It loads the credentials file, obtains a token, and shows how to attach it as a
+`Bearer` header. The credentials JSON is generated from the Blerify portal;
+`config/credentials.example.json` documents its shape, and real credentials
+files under `config/` are git-ignored.
+
 ### Credentials file
 
-The service-account JSON contains (other fields are ignored):
+The service-account JSON is generated from the Blerify portal (create a service
+account, then download its credentials file). It contains (other fields are ignored):
 
 | Field | Used for |
 |---|---|
