@@ -31,11 +31,9 @@ final class CurlTokenEndpointClient implements TokenEndpointClient
         $body = curl_exec($ch);
         if ($body === false) {
             $error = curl_error($ch);
-            curl_close($ch);
             throw new AuthException("Token request transport error: {$error}");
         }
         $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
 
         if ($status !== 200) {
             throw new AuthException("Token endpoint returned HTTP {$status}: {$body}");
