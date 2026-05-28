@@ -21,34 +21,39 @@ require __DIR__ . '/vendor/autoload.php';
 use Blerify\Auth\Exception\AuthException;
 use Blerify\Auth\ServiceAccountTokenProvider;
 
-// Initialize the token provider from the service-account credentials file.
-$tokens = ServiceAccountTokenProvider::fromFile(__DIR__ . '/config/credentials.json');
-
-// Step 1: Obtain an access token (signs a JWT assertion, exchanges it, caches it).
-echo "\n1. Request access token: ";
-try {
-    $accessToken = $tokens->getAccessToken();
-} catch (AuthException $e) {
-    echo "Error\n" . $e->getMessage() . "\n";
+// The credentials JSON is generated from the Blerify portal (see README).
+$credentialsPath = __DIR__ . '/config/credentials.json';
+if (!is_file($credentialsPath)) {
+    fwrite(STDERR, "Missing credentials file: {$credentialsPath}\n");
+    fwrite(STDERR, "Generate a service-account credentials JSON from the Blerify portal and save it there.\n");
+    fwrite(STDERR, "See config/credentials.example.json for the expected shape.\n");
     exit(1);
 }
-echo "Ok\n";
-echo "   token (truncated): " . substr($accessToken, 0, 24) . "...\n";
 
-// Subsequent calls reuse the cached token until it is close to expiry.
-$accessToken = $tokens->getAccessToken();
+try {
+    // Initialize the token provider from the service-account credentials file.
+    $tokens = ServiceAccountTokenProvider::fromFile($credentialsPath);
 
-// Step 2: Use it as a Bearer token on any Blerify API request (via the gateway).
-echo "\n2. Call an authenticated endpoint:\n";
-$apiBase = 'https://api.demo.blerify.com';
+    // Step 1: Obtain an access token (signs a JWT assertion, exchanges it, caches it).
+    echo "\n1. Request access token: ";
+    $accessToken = $tokens->getAccessToken();
+    echo "Ok\n";
+    echo "   token (truncated): " . substr($accessToken, 0, 24) . "...\n";
 
-// Replace with the endpoint your integration consumes, then uncomment:
-// $response = authenticatedGet($apiBase . '/api/v1/your/endpoint', $accessToken);
-// handleResponse($response);
+    // Subsequent calls reuse the cached token until it is close to expiry.
+    $accessToken = $tokens->getAccessToken();
 
-echo "   send this header on your requests:\n";
-echo "   Authorization: Bearer " . substr($accessToken, 0, 24) . "...\n";
-echo "\nOk\n";
+    // Step 2: Use it as a Bearer token on any Blerify API request (via the gateway).
+    // Replace the URL with the endpoint your integration consumes, then uncomment:
+    // $response = authenticatedGet('https://api.demo.blerify.com/api/v1/your/endpoint', $accessToken);
+    // handleResponse($response);
+    echo "\n2. Attach the token to your requests:\n";
+    echo "   Authorization: Bearer " . substr($accessToken, 0, 24) . "...\n";
+    echo "\nOk\n";
+} catch (AuthException $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+    exit(1);
+}
 
 /**
  * Minimal authenticated GET — shows how to attach the Bearer token.
