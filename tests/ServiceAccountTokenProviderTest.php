@@ -21,15 +21,21 @@ final class ServiceAccountTokenProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $res = openssl_pkey_new([
-            'private_key_bits' => 2048,
-            'private_key_type' => OPENSSL_KEYTYPE_RSA,
-        ]);
-        self::assertNotFalse($res, 'RSA keypair generation failed');
+        // Use a fixed throwaway keypair from tests/fixtures/ rather than
+        // generating one at runtime. openssl_pkey_new() needs a usable OpenSSL
+        // config (OPENSSL_CONF), which not every environment provides, whereas
+        // signing/verifying with a supplied PEM does not. See
+        // tests/fixtures/README.md.
+        $this->privateKey = self::fixtureKey('test_private_key.pem.b64');
+        $this->publicKey = self::fixtureKey('test_public_key.pem.b64');
+    }
 
-        openssl_pkey_export($res, $privatePem);
-        $this->privateKey = $privatePem;
-        $this->publicKey = openssl_pkey_get_details($res)['key'];
+    private static function fixtureKey(string $name): string
+    {
+        $b64 = file_get_contents(__DIR__ . '/fixtures/' . $name);
+        self::assertNotFalse($b64, "missing key fixture: {$name}");
+
+        return (string) base64_decode($b64, true);
     }
 
     protected function tearDown(): void

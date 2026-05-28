@@ -114,6 +114,7 @@ composer install
 composer test        # runs PHPUnit
 ```
 
-Unit tests generate a throwaway RSA keypair at runtime and verify the signed
-assertion's claims and signature, the form sent to the endpoint, token caching
-and renewal, and error handling — no network or real credentials required.
+Unit tests use a throwaway RSA keypair fixture (`tests/fixtures/`) to verify the
+signed assertion's claims and signature, the form sent to the endpoint, token
+caching and renewal, and error handling — no network or real credentials
+required.
