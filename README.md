@@ -38,6 +38,24 @@ $accessToken = $tokens->getAccessToken();
 //   Authorization: Bearer {$accessToken}
 ```
 
+### Reading the service account's own roles
+
+The IAM self-service endpoint returns the API roles granted to the
+authenticated service account — identity is derived from the token, so no
+parameters are sent:
+
+```php
+use Blerify\Auth\ServiceAccountRolesClient;
+
+$roles = new ServiceAccountRolesClient('https://api.demo.blerify.com', $tokens);
+
+foreach ($roles->getOwnRoles() as $role) {
+    // e.g. credentials.api / d56624f1-... / My Project
+    // projectId and projectName are null for organization-level roles.
+    echo "{$role->name} {$role->projectId} {$role->projectName}\n";
+}
+```
+
 ### Runnable example
 
 A complete runnable example lives in [`index.php`](index.php):
